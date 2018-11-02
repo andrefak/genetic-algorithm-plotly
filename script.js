@@ -1,112 +1,107 @@
-var genQtt = 50;
-var szPop = 50;
-var mutRatio = 0.5;
+var genQtt = 5;
+var szPop = 5;
+var mutRatio = 1;
 var MAX = 20;
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function getF(x, y) {
 	return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
 	// return (x*x/9 + y*y/16)/25;
+	// return x*Math.sin(x) + y*Math.cos(y);
+	// return x + y;
 }
 
 function setup() {
-	DIV = document.getElementById('plot-function');
-	var nX = MAX;
-	var nY = MAX;
-
-	var f = new Array(nX).fill(new Array(nY));
-
-	_z = [];
-	for (var y = 0; y < nY; y++) {
-		_zrow = [];
-		for (var x = 0; x < nX; x++) {
-			var vZ = getF(x, y);
-
-			f[x][y] = vZ;
-			_zrow.push(vZ);
-		}
+	var _z = [];
+	for (var y = 0; y < MAX+1; y++) {
+		var _zrow = [];
+		for (var x = 0; x < MAX+1; x++)
+			_zrow.push(getF(x, y));
 		_z.push(_zrow);
 	}
 
-	var data = {z : _z, type: 'surface'};
-
-	return f, data;
+	return {z : _z, type: 'surface'};
 }
 
 function initPop() {
 	var ind = [];
 	for (var i = 0; i < szPop; i++)
-		ind.push([Math.floor(Math.random() * MAX), Math.floor(Math.random() * MAX)]);
+		ind.push(Math.random() * MAX);
 	return ind;
 }
 
-function genFitness(ind) {
+function genFitness(indX, indY) {
 	var fit = [];
 	for (var i = 0; i < szPop; i++)
-		fit.push(getF(ind[i][0], ind[i][1]));
+		fit.push(getF(indX[i], indY[i]));
 	return fit;
 }
 
-//elitism: the best to transa with everybody
-function selectPop(ind, fit) {
-
-	//find the best
+function findTheBest(fit) {
 	var best = 0;
 	for (var i = 1; i < szPop; i++) 
 		if (fit[i] > fit[best]) best = i;
+	return best;
+}
+
+//elitism: the best to transa with everybody
+function selectPop(indX, indY, fit) {
+	//find the best
+	var best = findTheBest(fit);
 
 	//crossover
 	for (var i = 0; i < szPop; i++) { 
-		ind[i][0] = (ind[i][0] + ind[best][0]) / 2;
-		ind[i][1] = (ind[i][1] + ind[best][1]) / 2;
+		indX[i] = (indX[i] + indX[best]) / 2;
+		indY[i] = (indY[i] + indY[best]) / 2;
 	}
 
-	fit = genFitness(ind);
+	fit = genFitness(indX, indY);
 
 	//mutation
 	for (var i = 0; i < szPop; i++) {
-		var bkp1 = ind[i][0];
-		var bkp2 = ind[i][1];
+		var bkp1 = indX[i];
+		var bkp2 = indY[i];
 
 		if (fit[i] != fit[best]) {
-			ind[i][0] = Math.floor(ind[i][0]*(Math.random()/mutRatio+1));
-			ind[i][1] = Math.floor(ind[i][1]*(Math.random()/mutRatio+1));
+			indX[i] = indX[i]*(Math.random()/mutRatio+1);
+			indY[i] = indY[i]*(Math.random()/mutRatio+1);
 		}
 
-		if (ind[i][0] >= MAX || ind[i][1] >= MAX) {
-			ind[i][0] = bkp1;
-			ind[i][1] = bkp2;
+		if (indX[i] >= MAX || indY[i] >= MAX) {
+			indX[i] = bkp1;
+			indY[i] = bkp2;
 			i--;
 		}
 	}
 
-	fit = genFitness(ind);
+	fit = genFitness(indX, indY);
+
+	var coord = [indX, indY, fit];
 	
-	return ind, fit;
+	return coord;
 }
 
-function findTheMax(ind, fit) {
-	var pX = new Array(szPop);
-	var pY = new Array(szPop);
-	var pZ = new Array(szPop);
-
-	for (var i = 0; i < genQtt; i++) {
-		ind, fit = selectPop(ind, fit);
-
-		pX = [];
-		pY = [];
-		pZ = [];
-
-		for (var i = 0; i < szPop; i++) {
-			pX.push(ind[i][0]);
-			pY.push(ind[i][1]);
-			pZ.push(fit[i]);
-		}
+function addText(indX, indY, fit, gen) {
+	var best = findTheBest(fit);
+	
+	var str = "<br>[" + gen.toString() + "] ";
+	for (var i = 0; i < szPop; i++) {
+		if (i === best) str += "<b>";
+		str += "(" + indX[i].toFixed(1).toString() + "," + indY[i].toFixed(1).toString() + "," + fit[i].toFixed(1).toString() + ") ";
+		if (i === best) str += "</b>";
 	}
+	
+	document.getElementById('points-description').innerHTML += str.toString();
+}
 
+function plotEverything(data, coords) {
 	var points = {
-		x: pX,
-		y: pY,
-		z: pZ,
+		x: coords[0],
+		y: coords[1],
+		z: coords[2],
 		mode: 'markers', 
 		marker: {
 			size: 1,
@@ -119,14 +114,35 @@ function findTheMax(ind, fit) {
 		type: 'scatter3d'
 	};
 
-	return points; // pX, pY, pZ;
+	Plotly.newPlot('plot-function', [data, points]);
 }
 
-var f, data = setup();
+function findTheMax(indX, indY, fit, data) {
+	var coord = [];
 
-var ind = initPop();
-var fit = genFitness(ind);
+	for (var i = 0; i < genQtt; i++) {
+		plotEverything(data, [indX, indY, fit]);
+		addText(indX, indY, fit, i);
 
-var points = findTheMax(ind, fit);
+		// animPoints(data, ind, fit);
+		coord = selectPop(indX, indY, fit);
 
-Plotly.newPlot(DIV, [data, points]);
+		indX = coord[0];
+		indY = coord[1];
+		fit  = coord[2];
+
+		sleep(100);
+	}
+
+	addText(indX, indY, fit, genQtt);
+	plotEverything(data, [indX, indY, fit]);
+}
+
+var data = setup();
+
+var indX = initPop();
+var indY = initPop();
+
+var fit = genFitness(indX, indY);
+
+var points = findTheMax(indX, indY, fit, data);

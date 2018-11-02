@@ -1,0 +1,18 @@
+body {
+	color: black;
+	font-family: verdana calibri helvetica comic-sans-ms;
+	font-size: 12px;
+}
+
+#points-description {
+	width:  28%;
+	height: 95%;
+	float: left;
+	padding: 1%;
+}
+
+#plot-function {
+	float: right;
+	width:  70%;
+	height: 95%;
+}
