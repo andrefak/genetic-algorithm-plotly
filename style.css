@@ -16,21 +16,33 @@ td, th {
 
 .functions {
 	width: 98%;
-	height: 450px;
+	height: auto;
+	min-height: 500px;
+	padding: 1px;
+
+	/*background: #d5cbed;*/
+	padding: 10px;
+	border-color: #A2B5CD;
+	border-style: solid;
+	border-width: 1px;
+	border-radius:5px;
 }
 
 .points-description {
-	width:  28%;
 	float: left;
-	padding: 1%;
 }
 
 .plot-function {
 	float: right;
-	width:  70%;
 }
 
 #user-options {
 	background: #d5cbed;
 	padding: 10px;
+	border-top-radius: 5px;
+	border-color: #A2B5CD;
+	border-style: solid;
+	border-width: 1px;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
 }

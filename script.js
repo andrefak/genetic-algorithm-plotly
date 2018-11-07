@@ -160,7 +160,8 @@ function addText(div, indX, indY, fit, gen) {
 	var str = "<br>[" + gen.toString() + "] ";
 	for (var i = 0; i < szPop; i++) {
 		if (i === best) str += "<b>";
-		str += "(" + indX[i].toFixed(1).toString() + "," + indY[i].toFixed(1).toString() + "," + fit[i].toFixed(1).toString() + ") ";
+		// str += "(" + indX[i].toFixed(1).toString() + "," + indY[i].toFixed(1).toString() + "," + fit[i].toFixed(1).toString() + ") ";
+		str += fit[i].toFixed(2).toString() + " ";
 		if (i === best) str += "</b>";
 	}
 
@@ -188,12 +189,26 @@ function plotEverything(div, data, coords) {
 		type: 'scatter3d'
 	};
 
-	Plotly.newPlot(div, [data, points]);
+	var layout = {
+		autosize: false,
+		width: 500,
+		height: 500
+	}
+
+	Plotly.purge(div);
+	Plotly.plot(div, [data, points], layout);
 }
 
 function findTheMax(div, indX, indY, fit, data) {
 	var coord = [];
 	var maximum = [];
+
+	//clears the text
+	var desc;
+	if (div === "func-elitism") desc = "desc-elitism";
+	if (div === "func-roulette") desc = "desc-roulette";
+	if (div === "func-tourney") desc = "desc-tourney";
+	document.getElementById(desc).innerHTML = "";
 
 	for (var i = 0; i < genQtt; i++) {
 		addText(div, indX, indY, fit, i);
@@ -231,6 +246,12 @@ function generateAll() {
 
 	var fit = genFitness(indX, indY);
 
+	//change the width of the functions
+	var elements = document.getElementsByClassName("points-description");
+	for (var i = 0; i < elements.length; i++)
+		elements[i].style.width = (self.innerWidth - 700 + "px");
+
+
 	var maxOfEach = [];
 	var maxi = [];
 
@@ -240,20 +261,29 @@ function generateAll() {
 		maxi.push(findTheMax("func-elitism", indX, indY, fit, data));
 		maxi.push("Elitism");
 		maxOfEach.push(maxi);
+	} else {
+		document.getElementById("f-elitism").style.display = "none";
 	}
+
+
 	if (roulette === true) {
 		document.getElementById("f-roulette").style.display = "block"; 
 		maxi = [];
 		maxi.push(findTheMax("func-roulette", indX, indY, fit, data));
 		maxi.push("Roulette");
 		maxOfEach.push(maxi);
+	} else {
+		document.getElementById("f-roulette").style.display = "none";
 	}
+
 	if (tourney === true) {
 		document.getElementById("f-tourney").style.display = "block";
 		maxi = [];
 		maxi.push(findTheMax("func-tourney", indX, indY, fit, data));
 		maxi.push("Tourney");
 		maxOfEach.push(maxi);
+	} else {
+		document.getElementById("f-tourney").style.display = "none";
 	}
 
 	//plot the comparison
@@ -280,5 +310,6 @@ function generateAll() {
 		yaxis: {range: [0, MAX]}
 	};
 
-	Plotly.newPlot('func-compare', traces, layout);
+	Plotly.purge('func-compare');
+	Plotly.plot('func-compare', traces, layout);
 }
