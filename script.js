@@ -1,12 +1,7 @@
-var genQtt = 5;
-var szPop = 5;
-var mutRatio = 1;
-var MAX = 20;
+var genQtt, szPop, mutRatio;
+var MAX = 50;
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
+//return the f(x, y)
 function getF(x, y) {
 	return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
 	// return (x*x/9 + y*y/16)/25;
@@ -14,6 +9,8 @@ function getF(x, y) {
 	// return x + y;
 }
 
+//return the main function (the colorized one).
+//TODO: replace this with a CSV
 function setup() {
 	var _z = [];
 	for (var y = 0; y < MAX+1; y++) {
@@ -26,6 +23,7 @@ function setup() {
 	return {z : _z, type: 'surface'};
 }
 
+//initialize the population with random values
 function initPop() {
 	var ind = [];
 	for (var i = 0; i < szPop; i++)
@@ -48,7 +46,7 @@ function findTheBest(fit) {
 }
 
 //elitism: the best to transa with everybody
-function selectPop(indX, indY, fit) {
+function selectElitism(indX, indY, fit) {
 	//find the best
 	var best = findTheBest(fit);
 
@@ -84,7 +82,79 @@ function selectPop(indX, indY, fit) {
 	return coord;
 }
 
-function addText(indX, indY, fit, gen) {
+function selectRoulette(indX, indY, fit) {
+	//find the best
+	var best = findTheBest(fit);
+
+	//crossover
+	for (var i = 0; i < szPop; i++) { 
+		indX[i] = (indX[i] + indX[best]) / 2;
+		indY[i] = (indY[i] + indY[best]) / 2;
+	}
+
+	fit = genFitness(indX, indY);
+
+	//mutation
+	for (var i = 0; i < szPop; i++) {
+		var bkp1 = indX[i];
+		var bkp2 = indY[i];
+
+		if (fit[i] != fit[best]) {
+			indX[i] = indX[i]*(Math.random()/mutRatio+1);
+			indY[i] = indY[i]*(Math.random()/mutRatio+1);
+		}
+
+		if (indX[i] >= MAX || indY[i] >= MAX) {
+			indX[i] = bkp1;
+			indY[i] = bkp2;
+			i--;
+		}
+	}
+
+	fit = genFitness(indX, indY);
+
+	var coord = [indX, indY, fit];
+	
+	return coord;
+}
+
+function selectTourney(indX, indY, fit) {
+	//find the best
+	var best = findTheBest(fit);
+
+	//crossover
+	for (var i = 0; i < szPop; i++) { 
+		indX[i] = (indX[i] + indX[best]) / 2;
+		indY[i] = (indY[i] + indY[best]) / 2;
+	}
+
+	fit = genFitness(indX, indY);
+
+	//mutation
+	for (var i = 0; i < szPop; i++) {
+		var bkp1 = indX[i];
+		var bkp2 = indY[i];
+
+		if (fit[i] != fit[best]) {
+			indX[i] = indX[i]*(Math.random()/mutRatio+1);
+			indY[i] = indY[i]*(Math.random()/mutRatio+1);
+		}
+
+		if (indX[i] >= MAX || indY[i] >= MAX) {
+			indX[i] = bkp1;
+			indY[i] = bkp2;
+			i--;
+		}
+	}
+
+	fit = genFitness(indX, indY);
+
+	var coord = [indX, indY, fit];
+	
+	return coord;
+}
+
+function addText(div, indX, indY, fit, gen) {
 	var best = findTheBest(fit);
 	
 	var str = "<br>[" + gen.toString() + "] ";
@@ -93,11 +163,15 @@ function addText(indX, indY, fit, gen) {
 		str += "(" + indX[i].toFixed(1).toString() + "," + indY[i].toFixed(1).toString() + "," + fit[i].toFixed(1).toString() + ") ";
 		if (i === best) str += "</b>";
 	}
-	
-	document.getElementById('points-description').innerHTML += str.toString();
+
+	var desc;
+	if (div === "func-elitism") desc = "desc-elitism";
+	if (div === "func-roulette") desc = "desc-roulette";
+	if (div === "func-tourney") desc = "desc-tourney";
+	document.getElementById(desc).innerHTML += str.toString();
 }
 
-function plotEverything(data, coords) {
+function plotEverything(div, data, coords) {
 	var points = {
 		x: coords[0],
 		y: coords[1],
@@ -114,35 +188,97 @@ function plotEverything(data, coords) {
 		type: 'scatter3d'
 	};
 
-	Plotly.newPlot('plot-function', [data, points]);
+	Plotly.newPlot(div, [data, points]);
 }
 
-function findTheMax(indX, indY, fit, data) {
+function findTheMax(div, indX, indY, fit, data) {
 	var coord = [];
+	var maximum = [];
 
 	for (var i = 0; i < genQtt; i++) {
-		plotEverything(data, [indX, indY, fit]);
-		addText(indX, indY, fit, i);
+		addText(div, indX, indY, fit, i);
+		maximum.push(fit[findTheBest(fit)]);
 
-		// animPoints(data, ind, fit);
-		coord = selectPop(indX, indY, fit);
+		if (div === "func-elitism") coord = selectElitism(indX, indY, fit);
+		if (div === "func-roulette") coord = selectRoulette(indX, indY, fit);
+		if (div === "func-tourney") coord = selectTourney(indX, indY, fit);
 
 		indX = coord[0];
 		indY = coord[1];
 		fit  = coord[2];
-
-		sleep(100);
 	}
 
-	addText(indX, indY, fit, genQtt);
-	plotEverything(data, [indX, indY, fit]);
+	maximum.push(fit[findTheBest(fit)]);
+	addText(div, indX, indY, fit, genQtt);
+	plotEverything(div, data, [indX, indY, fit]);
+
+	return maximum;
 }
 
-var data = setup();
+function generateAll() {
+	genQtt = document.getElementById("generations").value;
+	szPop = document.getElementById("population").value;
+	mutRatio = document.getElementById("mutation").value;
 
-var indX = initPop();
-var indY = initPop();
+	var elitism = document.getElementById("elitism").checked;
+	var roulette = document.getElementById("roulette").checked;
+	var tourney = document.getElementById("tourney").checked;
 
-var fit = genFitness(indX, indY);
+	var data = setup();
 
-var points = findTheMax(indX, indY, fit, data);
+	var indX = initPop();
+	var indY = initPop();
+
+	var fit = genFitness(indX, indY);
+
+	var maxOfEach = [];
+	var maxi = [];
+
+	if (elitism === true) {
+		document.getElementById("f-elitism").style.display = "block";
+		maxi = [];
+		maxi.push(findTheMax("func-elitism", indX, indY, fit, data));
+		maxi.push("Elitism");
+		maxOfEach.push(maxi);
+	}
+	if (roulette === true) {
+		document.getElementById("f-roulette").style.display = "block"; 
+		maxi = [];
+		maxi.push(findTheMax("func-roulette", indX, indY, fit, data));
+		maxi.push("Roulette");
+		maxOfEach.push(maxi);
+	}
+	if (tourney === true) {
+		document.getElementById("f-tourney").style.display = "block";
+		maxi = [];
+		maxi.push(findTheMax("func-tourney", indX, indY, fit, data));
+		maxi.push("Tourney");
+		maxOfEach.push(maxi);
+	}
+
+	//plot the comparison
+	document.getElementById("f-compare").style.display = "block";
+
+	var cX = [];
+	for (var i = 0; i <= genQtt; i++)
+		cX.push(i);
+	var traces = [];
+	for (var i = 0; i < maxOfEach.length; i++) {
+		var t = {
+			x: cX,
+			y: maxOfEach[i][0],
+			mode: 'lines+markers',
+			name: maxOfEach[i][1],
+			font: {
+				size: 16
+			}
+		};
+		traces.push(t);
+	}
+
+	var layout = {
+		yaxis: {range: [0, MAX]}
+	};
+
+	Plotly.newPlot('func-compare', traces, layout);
+}

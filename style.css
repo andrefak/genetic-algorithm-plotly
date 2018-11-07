@@ -1,18 +1,36 @@
 body {
 	color: black;
-	font-family: verdana calibri helvetica comic-sans-ms;
+	font-family: arial, sans-serif;
 	font-size: 12px;
 }
 
-#points-description {
+table {
+	border-collapse: collapse;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+.functions {
+	width: 98%;
+	height: 450px;
+}
+
+.points-description {
 	width:  28%;
-	height: 95%;
 	float: left;
 	padding: 1%;
 }
 
-#plot-function {
+.plot-function {
 	float: right;
 	width:  70%;
-	height: 95%;
+}
+
+#user-options {
+	background: #d5cbed;
+	padding: 10px;
 }
