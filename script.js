@@ -1,5 +1,5 @@
 var genQtt, szPop, mutRatio;
-var MAX = 50;
+var MAX = 20, maxZ = 0;
 
 //return the f(x, y)
 function getF(x, y) {
@@ -15,8 +15,10 @@ function setup() {
 	var _z = [];
 	for (var y = 0; y < MAX+1; y++) {
 		var _zrow = [];
-		for (var x = 0; x < MAX+1; x++)
+		for (var x = 0; x < MAX+1; x++) {
 			_zrow.push(getF(x, y));
+			if (_zrow[x] > maxZ) maxZ = _zrow[x];
+		}
 		_z.push(_zrow);
 	}
 
@@ -309,7 +311,7 @@ function generateAll() {
 	}
 
 	var layout = {
-		yaxis: {range: [0, MAX]}
+		yaxis: {range: [0, maxZ+5]}
 	};
 
 	Plotly.purge('func-compare');
