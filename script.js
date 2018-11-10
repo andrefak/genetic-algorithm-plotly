@@ -82,6 +82,7 @@ function selectElitism(indX, indY, fit) {
 	return coord;
 }
 
+//roulete: method known by Priscila and Yudi researches
 function selectRoulette(indX, indY, fit) {
 	//find the best
 	var best = findTheBest(fit);
@@ -118,6 +119,7 @@ function selectRoulette(indX, indY, fit) {
 	return coord;
 }
 
+//tourney: two retards fight and see whos best
 function selectTourney(indX, indY, fit) {
 	//find the best
 	var best = findTheBest(fit);
