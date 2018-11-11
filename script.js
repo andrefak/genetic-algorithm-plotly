@@ -121,40 +121,35 @@ function selectRoulette(indX, indY, fit) {
 	return coord;
 }
 
+function fight(indX, indY, axis, tourney_size){
+	var best_ind = -1;
+	for(var i = 0; i < tourney_size; i++){
+		var ind;
+		if(axis == 0) 
+			ind = indX[(Math.floor(Math.random() * indX.length))];
+		else 
+			ind = indY[(Math.floor(Math.random() * indY.length))];
+
+		if(best_ind === -1 or getF(best_ind) < getF(ind)){
+			best_ind = ind;
+		}
+	}
+	return best_ind;
+}
+
 //tourney: two retards fight and see whos best
-function selectTourney(indX, indY, fit) {
-	//find the best
-	var best = findTheBest(fit);
-
-	//crossover
-	for (var i = 0; i < szPop; i++) { 
-		indX[i] = (indX[i] + indX[best]) / 2;
-		indY[i] = (indY[i] + indY[best]) / 2;
+function selectTourney(indX, indY) {
+	var new_fit = [];
+	var new_indX = [];
+	var new_indY = [];
+	for(var i = 0; i < indX.length; i++){
+		var parent1 = fight(indX, indY, 0, 3);
+		var parent2 = fight(indX, indY, 1, 3);
+		new_indX.push(parent1);
+		new_indY.push(parent2);
+		new_fit.push(getF((parent1+parent2)/2));
 	}
-
-	fit = genFitness(indX, indY);
-
-	//mutation
-	for (var i = 0; i < szPop; i++) {
-		var bkp1 = indX[i];
-		var bkp2 = indY[i];
-
-		if (fit[i] != fit[best]) {
-			indX[i] = indX[i]*(Math.random()/mutRatio+1);
-			indY[i] = indY[i]*(Math.random()/mutRatio+1);
-		}
-
-		if (indX[i] >= MAX || indY[i] >= MAX) {
-			indX[i] = bkp1;
-			indY[i] = bkp2;
-			i--;
-		}
-	}
-
-	fit = genFitness(indX, indY);
-
-	var coord = [indX, indY, fit];
-	
+	var coord = [indX, indY, new_fit];
 	return coord;
 }
 
