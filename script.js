@@ -121,40 +121,38 @@ function selectRoulette(indX, indY, fit) {
 	return coord;
 }
 
+function fight(indX, indY, tourney_size){
+	var best_ind = -1;
+	var ind;
+
+	for(var i = 0; i < tourney_size; i++) {
+		ind = Math.floor(Math.random() * szPop);		
+
+		if(best_ind === -1 ||getF(indX[best_ind], indY[best_ind]) < getF(indX[ind], indY[ind]))
+			best_ind = ind;
+	}
+
+	return best_ind;
+}
+
 //tourney: two retards fight and see whos best
 function selectTourney(indX, indY, fit) {
-	//find the best
-	var best = findTheBest(fit);
+	var bestOfAll = findTheBest(fit);
 
-	//crossover
-	for (var i = 0; i < szPop; i++) { 
-		indX[i] = (indX[i] + indX[best]) / 2;
-		indY[i] = (indY[i] + indY[best]) / 2;
+	for(var i = 0; i < indX.length; i++) {
+		if (i == bestOfAll) continue;
+		
+		var ind = fight(indX, indY, 3);
+
+		indX[i] = indX[ind];
+		indY[i] = indY[ind];
+
+		///APPLY MUTATION HERE @PREXA
+
+		fit[i] = getF(indX[i], indY[i]);
 	}
-
-	fit = genFitness(indX, indY);
-
-	//mutation
-	for (var i = 0; i < szPop; i++) {
-		var bkp1 = indX[i];
-		var bkp2 = indY[i];
-
-		if (fit[i] != fit[best]) {
-			indX[i] = indX[i]*(Math.random()/mutRatio+1);
-			indY[i] = indY[i]*(Math.random()/mutRatio+1);
-		}
-
-		if (indX[i] >= MAX || indY[i] >= MAX) {
-			indX[i] = bkp1;
-			indY[i] = bkp2;
-			i--;
-		}
-	}
-
-	fit = genFitness(indX, indY);
 
 	var coord = [indX, indY, fit];
-	
 	return coord;
 }
 
@@ -249,6 +247,7 @@ function generateAll() {
 	var indY = initPop();
 
 	var fit = genFitness(indX, indY);
+
 
 	//change the width of the functions
 	var elements = document.getElementsByClassName("points-description");
