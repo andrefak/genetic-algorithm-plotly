@@ -7,12 +7,14 @@
 </head>
 <body>
 	<div class="user" id="user-options">
-		<form>			
+		<form>	
+			<label><input type="checkbox" id="plotOrNo" name="plotOrNo" value="plotOrNo" checked> Plot function?</label><br>
+
 			<b>Evolution method:</b> <br>
 
 			<label><input type="checkbox" id="elitism" name="elitism" value="e" checked> Elitism</label><br>
-			<label><input type="checkbox" id="roulette" name="roulette" value="e"> Roulette</label><br>
-			<label><input type="checkbox" id="tourney" name="tourney" value="t"> Tourney</label><br>
+			<label><input type="checkbox" id="roulette" name="roulette" value="e" checked> Roulette</label><br>
+			<label><input type="checkbox" id="tourney" name="tourney" value="t" checked> Tourney</label><br>
 
 			<label>Generations: <input type="number" id="generations" name="generations" min="0" max="50" value="5"></label><br>
 

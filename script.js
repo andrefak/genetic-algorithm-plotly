@@ -1,16 +1,15 @@
-var genQtt, szPop, mutRatio;
+var genQtt, szPop, mutRatio, plotOrNo;
 var MAX = 20, maxZ = 0;
 
 //return the f(x, y)
 function getF(x, y) {
-	return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
+	// return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
 	// return (x*x/9 + y*y/16)/25;
 	// return x*Math.sin(x) + y*Math.cos(y);
-	// return x + y;
+	return x + y;
 }
 
 //return the main function (the colorized one).
-//TODO: replace this with a CSV
 function setup() {
 	var _z = [];
 	for (var y = 0; y < MAX+1; y++) {
@@ -33,6 +32,7 @@ function initPop() {
 	return ind;
 }
 
+//return the fitness array with the x and y values.
 function genFitness(indX, indY) {
 	var fit = [];
 	for (var i = 0; i < szPop; i++)
@@ -40,11 +40,23 @@ function genFitness(indX, indY) {
 	return fit;
 }
 
+//return the index of the best on the fitness array
 function findTheBest(fit) {
 	var best = 0;
 	for (var i = 1; i < szPop; i++) 
 		if (fit[i] > fit[best]) best = i;
 	return best;
+}
+
+//mutate a gene
+function mutateGene(ind) {
+	if (mutRatio === 0) return ind;
+
+	var ret = ind + ( (Math.random() * ((parseFloat(mutRatio)))) - 0.5);
+	while (ret >= MAX)
+		ret = ind + ( (Math.random() * ((parseFloat(mutRatio)))) - 0.5);
+
+	return ret;
 }
 
 //elitism: the best to transa with everybody
@@ -54,73 +66,63 @@ function selectElitism(indX, indY, fit) {
 
 	//crossover
 	for (var i = 0; i < szPop; i++) { 
+		if (i === best) continue;
+
 		indX[i] = (indX[i] + indX[best]) / 2;
 		indY[i] = (indY[i] + indY[best]) / 2;
+
+		indX[i] = mutateGene(indX[i]);
+		indY[i] = mutateGene(indY[i]);
+
+		fit[i] = getF(indX[i], indY[i]);
 	}
-
-	fit = genFitness(indX, indY);
-
-	//mutation
-	for (var i = 0; i < szPop; i++) {
-		var bkp1 = indX[i];
-		var bkp2 = indY[i];
-
-		if (fit[i] != fit[best]) {
-			indX[i] = indX[i]*(Math.random()/mutRatio+1);
-			indY[i] = indY[i]*(Math.random()/mutRatio+1);
-		}
-
-		if (indX[i] >= MAX || indY[i] >= MAX) {
-			indX[i] = bkp1;
-			indY[i] = bkp2;
-			i--;
-		}
-	}
-
-	fit = genFitness(indX, indY);
 
 	var coord = [indX, indY, fit];
-	
 	return coord;
+}
+
+//return the index of a parent for the Roulette Method
+function getParent(fit) {
+	var sum = 0;
+	for (var i = 0; i < szPop; i++)
+		sum += fit[i];
+
+	var rnd = Math.floor(Math.random() * sum);
+
+	var total = 0, i;
+	for (i = 0; i < szPop; i++) {
+		total += fit[i];
+		if (total >= rnd) break;
+	}
+
+	return i;
 }
 
 //roulete: method known by Priscila and Yudi researches
 function selectRoulette(indX, indY, fit) {
-	//find the best
 	var best = findTheBest(fit);
 
-	//crossover
-	for (var i = 0; i < szPop; i++) { 
-		indX[i] = (indX[i] + indX[best]) / 2;
-		indY[i] = (indY[i] + indY[best]) / 2;
-	}
-
-	fit = genFitness(indX, indY);
-
-	//mutation
 	for (var i = 0; i < szPop; i++) {
-		var bkp1 = indX[i];
-		var bkp2 = indY[i];
+		if (i === best) continue;
 
-		if (fit[i] != fit[best]) {
-			indX[i] = indX[i]*(Math.random()/mutRatio+1);
-			indY[i] = indY[i]*(Math.random()/mutRatio+1);
-		}
+		var mom = getParent(fit);
+		var dad = getParent(fit);
 
-		if (indX[i] >= MAX || indY[i] >= MAX) {
-			indX[i] = bkp1;
-			indY[i] = bkp2;
-			i--;
-		}
+		//child of the mom and the dad
+		indX[i] = (indX[mom]+indX[dad])/2;
+		indY[i] = (indY[mom]+indY[dad])/2;
+
+		indX[i] = mutateGene(indX[i]);
+		indY[i] = mutateGene(indY[i]);
+
+		fit[i] = getF(indX[i], indY[i]);
 	}
 
-	fit = genFitness(indX, indY);
-
-	var coord = [indX, indY, fit];
-	
+	var coord = [indX, indY, fit];	
 	return coord;
 }
 
+//fight function for the tourney method
 function fight(indX, indY, tourney_size){
 	var best_ind = -1;
 	var ind;
@@ -147,7 +149,8 @@ function selectTourney(indX, indY, fit) {
 		indX[i] = indX[ind];
 		indY[i] = indY[ind];
 
-		///APPLY MUTATION HERE @PREXA
+		indX[i] = mutateGene(indX[i]);
+		indY[i] = mutateGene(indY[i]);
 
 		fit[i] = getF(indX[i], indY[i]);
 	}
@@ -156,6 +159,7 @@ function selectTourney(indX, indY, fit) {
 	return coord;
 }
 
+//add a description for a generation
 function addText(div, indX, indY, fit, gen) {
 	var best = findTheBest(fit);
 	
@@ -174,6 +178,7 @@ function addText(div, indX, indY, fit, gen) {
 	document.getElementById(desc).innerHTML += str.toString();
 }
 
+//plot a function
 function plotEverything(div, data, coords) {
 	var points = {
 		x: coords[0],
@@ -181,7 +186,7 @@ function plotEverything(div, data, coords) {
 		z: coords[2],
 		mode: 'markers', 
 		marker: {
-			size: 1,
+			size: 5,
 			line: {
 				color: 'rgba(217, 217, 217, 0.14)',
 				width: 0.5
@@ -198,7 +203,8 @@ function plotEverything(div, data, coords) {
 	}
 
 	Plotly.purge(div);
-	Plotly.plot(div, [data, points], layout);
+	if (plotOrNo)
+		Plotly.plot(div, [data, points], layout);
 }
 
 function findTheMax(div, indX, indY, fit, data) {
@@ -232,7 +238,10 @@ function findTheMax(div, indX, indY, fit, data) {
 	return maximum;
 }
 
+//generate everything
 function generateAll() {
+	plotOrNo = document.getElementById("plotOrNo").checked;
+
 	genQtt = document.getElementById("generations").value;
 	szPop = document.getElementById("population").value;
 	mutRatio = document.getElementById("mutation").value;
@@ -245,9 +254,7 @@ function generateAll() {
 
 	var indX = initPop();
 	var indY = initPop();
-
 	var fit = genFitness(indX, indY);
-
 
 	//change the width of the functions
 	var elements = document.getElementsByClassName("points-description");
