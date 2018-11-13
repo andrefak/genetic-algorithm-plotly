@@ -1,12 +1,13 @@
 var genQtt, szPop, mutRatio, plotOrNo;
 var MAX = 20, maxZ = 0;
+var funcToPlot;
 
 //return the f(x, y)
 function getF(x, y) {
-	// return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
-	// return (x*x/9 + y*y/16)/25;
-	// return x*Math.sin(x) + y*Math.cos(y);
-	return x + y;
+	if (funcToPlot == "op1") return x + y;
+	if (funcToPlot == "op2") return x*Math.sin(x) + y*Math.cos(y);
+	if (funcToPlot == "op3") return (x*x/9 + y*y/16)/25;
+	if (funcToPlot == "op4") return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
 }
 
 //return the main function (the colorized one).
@@ -51,11 +52,15 @@ function findTheBest(fit) {
 //mutate a gene
 function mutateGene(ind) {
 	if (mutRatio === 0) return ind;
+	// ret = ind + ( (Math.random() * ((parseFloat(mutRatio)))) - 0.5);
 
-	var ret = ind + ( (Math.random() * ((parseFloat(mutRatio)))) - 0.5);
-	while (ret >= MAX)
-		ret = ind + ( (Math.random() * ((parseFloat(mutRatio)))) - 0.5);
+	var maxPos = ind * (1 + mutRatio/100);
+	if (maxPos > MAX) maxPos = MAX;
 
+	var minPos = ind * (1 - mutRatio/100);
+	if (minPos < 0) minPos = 0;
+
+	ret = Math.random()*(maxPos-minPos) + minPos;
 	return ret;
 }
 
@@ -180,10 +185,15 @@ function addText(div, indX, indY, fit, gen) {
 
 //plot a function
 function plotEverything(div, data, coords) {
+
+	var best = 0;
+	for (var i = 1; i < szPop; i++)
+		if (coords[2][i] > coords[2][best]) best = i;
+
 	var points = {
-		x: coords[0],
-		y: coords[1],
-		z: coords[2],
+		x: [coords[0][best]],
+		y: [coords[1][best]],
+		z: [coords[2][best]],
 		mode: 'markers', 
 		marker: {
 			size: 5,
@@ -249,6 +259,8 @@ function generateAll() {
 	var elitism = document.getElementById("elitism").checked;
 	var roulette = document.getElementById("roulette").checked;
 	var tourney = document.getElementById("tourney").checked;
+
+	funcToPlot = document.getElementById("funcToPlot").value;
 
 	var data = setup();
 

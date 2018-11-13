@@ -8,8 +8,15 @@
 <body>
 	<div class="user" id="user-options">
 		<form>	
+			<b>Select function</b>
+			<select id="funcToPlot" name="funcToPlot">
+				<option value="op1">x+y</option>
+				<option value="op2">x*sin(x) + y*cos(y)</option>
+				<option value="op3">(x*x/9 + y*y/16)/25</option>
+				<option value="op4">e^(sin(x)) - sin(x^3*y^2) + sqrt(y/10) + log(x^4*y^3+1) - sqrt(x/10)</option>
+			</select>
+			<br>
 			<label><input type="checkbox" id="plotOrNo" name="plotOrNo" value="plotOrNo" checked> Plot function?</label><br>
-
 			<b>Evolution method:</b> <br>
 
 			<label><input type="checkbox" id="elitism" name="elitism" value="e" checked> Elitism</label><br>
