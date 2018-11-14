@@ -9,12 +9,15 @@
 	<div class="user" id="user-options">
 		<form>	
 			<b>Select function</b>
-			<select id="funcToPlot" name="funcToPlot">
-				<option value="op1">x+y</option>
-				<option value="op2">x*sin(x) + y*cos(y)</option>
-				<option value="op3">(x*x/9 + y*y/16)/25</option>
-				<option value="op4">e^(sin(x)) - sin(x^3*y^2) + sqrt(y/10) + log(x^4*y^3+1) - sqrt(x/10)</option>
+			<select id="funcToPlot" name="funcToPlot" onchange="changeOtherReadOnly(this)">
+				<option value="x+y">x+y</option>
+				<option value="x*Math.sin(x) + y*Math.cos(y)">x*Math.sin(x) + y*Math.cos(y)</option>
+				<option value="(x*x/9 + y*y/16)/25">(x*x/9 + y*y/16)/25</option>
+				<option value="Math.exp(Math.sin(x)) - Math.sin(x**3*y**2) + Math.sqrt(y/10) + Math.log(x**4*y**3+1) - Math.sqrt(x/10)">Math.exp(Math.sin(x)) - Math.sin(x**3*y**2) + Math.sqrt(y/10) + Math.log(x**4*y**3+1) - Math.sqrt(x/10)</option>
+				<option value="other">Other</option>
 			</select>
+			<input type="text" id="funcToPlotTxt" name="funcToPlotTxt" readonly="true"><br>
+
 			<br>
 			<label><input type="checkbox" id="plotOrNo" name="plotOrNo" value="plotOrNo" checked> Plot function?</label><br>
 			<b>Evolution method:</b> <br>

@@ -4,10 +4,13 @@ var funcToPlot; //the function to plot
 
 //return the f(x, y)
 function getF(x, y) {
-	if (funcToPlot == "op1") return x + y;
-	if (funcToPlot == "op2") return x*Math.sin(x) + y*Math.cos(y);
-	if (funcToPlot == "op3") return (x*x/9 + y*y/16)/25;
-	if (funcToPlot == "op4") return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
+	
+	return eval(funcToPlot);
+
+	// if (funcToPlot == "op1") return x + y;
+	// if (funcToPlot == "op2") return x*Math.sin(x) + y*Math.cos(y);
+	// if (funcToPlot == "op3") return (x*x/9 + y*y/16)/25;
+	// if (funcToPlot == "op4") return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
 }
 
 //return the main function (the colorized one).
@@ -266,7 +269,11 @@ function generateAll() {
 	var roulette = document.getElementById("roulette").checked;
 	var tourney = document.getElementById("tourney").checked;
 
-	funcToPlot = document.getElementById("funcToPlot").value;
+
+	if (document.getElementById("funcToPlotTxt").readOnly)
+		funcToPlot = document.getElementById("funcToPlot").value.toString();
+	else
+		funcToPlot = document.getElementById("funcToPlotTxt").value.toString();
 
 	var data = setup();
 
@@ -340,4 +347,12 @@ function generateAll() {
 
 	Plotly.purge('func-compare');
 	Plotly.plot('func-compare', traces, layout);
+}
+
+//enable or disable readOnly
+function changeOtherReadOnly(opt) {
+	if (opt.value == "other")
+		document.getElementById("funcToPlotTxt").readOnly = false;
+	else
+		document.getElementById("funcToPlotTxt").readOnly = true;
 }
