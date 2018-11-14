@@ -20,6 +20,8 @@ td, th {
 	min-height: 500px;
 	padding: 1px;
 
+	overflow: hidden;
+
 	/*background: #d5cbed;*/
 	padding: 10px;
 	border-color: #A2B5CD;

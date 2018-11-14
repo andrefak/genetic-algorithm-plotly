@@ -1,6 +1,6 @@
-var genQtt, szPop, mutRatio, plotOrNo;
-var MAX = 20, maxZ = 0;
-var funcToPlot;
+var genQtt, szPop, mutRatio, plotOrNo; //number of generations, genes, mutation ratio
+var MAX = 20, maxZ = 0; //maximum of X and Y; maximum Z found (by the original function)
+var funcToPlot; //the function to plot
 
 //return the f(x, y)
 function getF(x, y) {
@@ -183,7 +183,7 @@ function addText(div, indX, indY, fit, gen) {
 	document.getElementById(desc).innerHTML += str.toString();
 }
 
-//plot a function
+//plot a function and the best gene (maximum function point)
 function plotEverything(div, data, coords) {
 
 	var best = 0;
@@ -217,6 +217,7 @@ function plotEverything(div, data, coords) {
 		Plotly.plot(div, [data, points], layout);
 }
 
+//find the maximum of a function by the method given in "div"
 function findTheMax(div, indX, indY, fit, data) {
 	var coord = [];
 	var maximum = [];
@@ -255,6 +256,11 @@ function generateAll() {
 	genQtt = document.getElementById("generations").value;
 	szPop = document.getElementById("population").value;
 	mutRatio = document.getElementById("mutation").value;
+
+	if (genQtt <= 0 || szPop <= 0 || mutRatio <= 0 || genQtt > 300 || szPop > 300) {
+		alert("Invalid values.");
+		return;
+	}
 
 	var elitism = document.getElementById("elitism").checked;
 	var roulette = document.getElementById("roulette").checked;
