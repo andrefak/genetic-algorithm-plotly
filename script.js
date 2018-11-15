@@ -1,26 +1,23 @@
 var genQtt, szPop, mutRatio, plotOrNo; //number of generations, genes, mutation ratio
-var MAX = 20, maxZ = 0; //maximum of X and Y; maximum Z found (by the original function)
+var MAX = 20, maxZ = 0, minZ = 0; //maximum of X and Y; maximum and minimum Z found (by the original function)
 var funcToPlot; //the function to plot
 
 //return the f(x, y)
-function getF(x, y) {
-	
+var getF = function(x, y) {
 	return eval(funcToPlot);
-
-	// if (funcToPlot == "op1") return x + y;
-	// if (funcToPlot == "op2") return x*Math.sin(x) + y*Math.cos(y);
-	// if (funcToPlot == "op3") return (x*x/9 + y*y/16)/25;
-	// if (funcToPlot == "op4") return Math.exp(Math.sin(x)) - Math.sin(x*x*x*y*y) + Math.sqrt(y/10) + Math.log(x*x*x*x*y*y*y+1) - Math.sqrt(x/10);
 }
 
 //return the main function (the colorized one).
 function setup() {
+	minZ = maxZ = 0;
+
 	var _z = [];
 	for (var y = 0; y < MAX+1; y++) {
 		var _zrow = [];
 		for (var x = 0; x < MAX+1; x++) {
 			_zrow.push(getF(x, y));
 			if (_zrow[x] > maxZ) maxZ = _zrow[x];
+			if (_zrow[x] < minZ) minZ = _zrow[x];
 		}
 		_z.push(_zrow);
 	}
@@ -342,7 +339,7 @@ function generateAll() {
 	}
 
 	var layout = {
-		yaxis: {range: [0, maxZ+5]}
+		yaxis: {range: [minZ-1, maxZ+1]}
 	};
 
 	Plotly.purge('func-compare');
