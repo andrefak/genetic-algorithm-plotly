@@ -218,7 +218,11 @@ function plotEverything(div, data, coords) {
 }
 
 //find the maximum of a function by the method given in "div"
-function findTheMax(div, indX, indY, fit, data) {
+function findTheMax(div, data) {
+	var indX = initPop();
+	var indY = initPop();
+	var fit = genFitness(indX, indY);
+
 	var coord = [];
 	var maximum = [];
 
@@ -274,10 +278,6 @@ function generateAll() {
 
 	var data = setup();
 
-	var indX = initPop();
-	var indY = initPop();
-	var fit = genFitness(indX, indY);
-
 	//change the width of the functions
 	var elements = document.getElementsByClassName("points-description");
 	for (var i = 0; i < elements.length; i++)
@@ -290,7 +290,7 @@ function generateAll() {
 	if (elitism === true) {
 		document.getElementById("f-elitism").style.display = "block";
 		maxi = [];
-		maxi.push(findTheMax("func-elitism", indX, indY, fit, data));
+		maxi.push(findTheMax("func-elitism", data));
 		maxi.push("Elitism");
 		maxOfEach.push(maxi);
 	} else {
@@ -301,7 +301,7 @@ function generateAll() {
 	if (roulette === true) {
 		document.getElementById("f-roulette").style.display = "block"; 
 		maxi = [];
-		maxi.push(findTheMax("func-roulette", indX, indY, fit, data));
+		maxi.push(findTheMax("func-roulette", data));
 		maxi.push("Roulette");
 		maxOfEach.push(maxi);
 	} else {
@@ -311,7 +311,7 @@ function generateAll() {
 	if (tourney === true) {
 		document.getElementById("f-tourney").style.display = "block";
 		maxi = [];
-		maxi.push(findTheMax("func-tourney", indX, indY, fit, data));
+		maxi.push(findTheMax("func-tourney", data));
 		maxi.push("Tourney");
 		maxOfEach.push(maxi);
 	} else {
