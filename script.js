@@ -103,7 +103,7 @@ function getParent(fit) {
 	return i;
 }
 
-//roulete: method known by Priscila and Yudi researches
+//roulette: method known by Priscila and Yudi researches
 function selectRoulette(indX, indY, fit) {
 	var best = findTheBest(fit);
 
@@ -127,12 +127,12 @@ function selectRoulette(indX, indY, fit) {
 	return coord;
 }
 
-//fight function for the tourney method
-function fight(indX, indY, tourney_size){
+//fight function for the tournament method
+function fight(indX, indY, tournament_size){
 	var best_ind = -1;
 	var ind;
 
-	for(var i = 0; i < tourney_size; i++) {
+	for(var i = 0; i < tournament_size; i++) {
 		ind = Math.floor(Math.random() * szPop);		
 
 		if(best_ind === -1 ||getF(indX[best_ind], indY[best_ind]) < getF(indX[ind], indY[ind]))
@@ -142,8 +142,8 @@ function fight(indX, indY, tourney_size){
 	return best_ind;
 }
 
-//tourney: two retards fight and see whos best
-function selectTourney(indX, indY, fit) {
+//tournament: two retards fight and see whos best
+function selectTournament(indX, indY, fit) {
 	var bestOfAll = findTheBest(fit);
 
 	for(var i = 0; i < indX.length; i++) {
@@ -179,7 +179,7 @@ function addText(div, indX, indY, fit, gen) {
 	var desc;
 	if (div === "func-elitism") desc = "desc-elitism";
 	if (div === "func-roulette") desc = "desc-roulette";
-	if (div === "func-tourney") desc = "desc-tourney";
+	if (div === "func-tournament") desc = "desc-tournament";
 	document.getElementById(desc).innerHTML += str.toString();
 }
 
@@ -230,7 +230,7 @@ function findTheMax(div, data) {
 	var desc;
 	if (div === "func-elitism") desc = "desc-elitism";
 	if (div === "func-roulette") desc = "desc-roulette";
-	if (div === "func-tourney") desc = "desc-tourney";
+	if (div === "func-tournament") desc = "desc-tournament";
 	document.getElementById(desc).innerHTML = "";
 
 	for (var i = 0; i < genQtt; i++) {
@@ -239,7 +239,7 @@ function findTheMax(div, data) {
 
 		if (div === "func-elitism") coord = selectElitism(indX, indY, fit);
 		if (div === "func-roulette") coord = selectRoulette(indX, indY, fit);
-		if (div === "func-tourney") coord = selectTourney(indX, indY, fit);
+		if (div === "func-tournament") coord = selectTournament(indX, indY, fit);
 
 		indX = coord[0];
 		indY = coord[1];
@@ -268,7 +268,7 @@ function generateAll() {
 
 	var elitism = document.getElementById("elitism").checked;
 	var roulette = document.getElementById("roulette").checked;
-	var tourney = document.getElementById("tourney").checked;
+	var tournament = document.getElementById("tournament").checked;
 
 
 	if (document.getElementById("funcToPlotTxt").readOnly)
@@ -308,14 +308,14 @@ function generateAll() {
 		document.getElementById("f-roulette").style.display = "none";
 	}
 
-	if (tourney === true) {
-		document.getElementById("f-tourney").style.display = "block";
+	if (tournament === true) {
+		document.getElementById("f-tournament").style.display = "block";
 		maxi = [];
-		maxi.push(findTheMax("func-tourney", data));
-		maxi.push("Tourney");
+		maxi.push(findTheMax("func-tournament", data));
+		maxi.push("Tournament");
 		maxOfEach.push(maxi);
 	} else {
-		document.getElementById("f-tourney").style.display = "none";
+		document.getElementById("f-tournament").style.display = "none";
 	}
 
 	//plot the comparison
