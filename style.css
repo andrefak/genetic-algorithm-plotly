@@ -47,3 +47,18 @@ td, th {
 	border-top-left-radius:5px;
 	border-top-right-radius:5px;
 }
+
+#footer {
+	background: #B2C1CC;
+	padding: 10px;
+	border-top-radius: 5px;
+	border-color: #A2B5CD;
+	border-style: solid;
+	border-width: 1px;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;	
+}
+
+#footer:hover {
+	background: #D0D9E0;
+}
